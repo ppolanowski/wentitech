@@ -106,7 +106,7 @@ export default function Contact() {
       // Clear success message after 5 seconds
       setTimeout(() => setMessage(null), 5000);
       
-    } catch (error) {
+  } catch {
       setMessage({ 
         text: 'Wystąpił błąd podczas wysyłania wiadomości. Spróbuj ponownie.', 
         type: 'error' 

@@ -228,6 +228,97 @@
   --md-sys-motion-easing-standard-accelerate: cubic-bezier(0.3, 0.0, 1.0, 1.0);
   --md-sys-motion-easing-standard-decelerate: cubic-bezier(0.0, 0.0, 0.0, 1.0);
   --md-sys-motion-easing-emphasized: cubic-bezier(0.2, 0.0, 0.0, 1.0);
+
+  /* MD3 Shape System (fallbacks used across components) */
+  --md-sys-shape-corner-none: 0px;
+  --md-sys-shape-corner-small: 8px;
+  --md-sys-shape-corner-medium: 12px;
+  --md-sys-shape-corner-large: 16px;
+  --md-sys-shape-corner-extra-large: 28px;
+  --md-sys-shape-corner-full: 9999px;
+
+  /* MD3 State Layer opacities */
+  --md-sys-state-hover-state-layer-opacity: 0.08;
+  --md-sys-state-focus-state-layer-opacity: 0.12;
+  --md-sys-state-pressed-state-layer-opacity: 0.12;
+
+  /* Compatibility tokens (map legacy project vars to MD3 system) */
+  /* Spacing scale (4px grid) */
+  --space-0: 0px;
+  --space-1: 4px;  /* used by code blocks */
+  --space-2: 8px;
+  --space-4: 12px;
+  --space-6: 16px;
+  --space-8: 20px;
+  --space-10: 24px;
+  --space-12: 28px;
+  --space-16: 32px;
+  --space-20: 40px;
+  --space-24: 48px;
+  --space-32: 64px;
+
+  /* Font families and sizes */
+  --font-family-base: var(--font-roboto), 'Roboto', system-ui, -apple-system, sans-serif;
+  --font-family-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  --font-size-sm: 14px;
+  --font-size-base: 16px;
+  --font-size-md: 16px;
+  --font-size-lg: 18px;
+  --font-size-xl: 20px;
+  --font-size-2xl: 24px;
+  --font-size-3xl: 28px;
+
+  /* Font weights & line-height */
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --line-height-normal: 1.5;
+
+  /* Radii */
+  --radius-sm: 8px;
+  --radius-base: 10px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-full: 9999px;
+
+  /* Containers (used in media queries below) */
+  --container-sm: 640px;
+  --container-md: 768px;
+  --container-lg: 1024px;
+  --container-xl: 1280px;
+
+  /* Easing & durations (compat) */
+  --duration-fast: var(--md-sys-motion-duration-short2);
+  --ease-standard: var(--md-sys-motion-easing-standard);
+
+  /* Shadows (map to MD elevation where possible) */
+  --shadow-sm: var(--md-sys-elevation-level1);
+  --shadow-md: var(--md-sys-elevation-level3);
+
+  /* Focus outline */
+  --focus-outline: 2px solid var(--md-sys-color-primary);
+
+  /* Color aliases (auto-adapt via system tokens) */
+  --color-primary: var(--md-sys-color-primary);
+  --color-primary-hover: var(--md-sys-color-primary);
+  --color-primary-subtle: var(--md-sys-color-primary-container);
+  --color-primary-surface: var(--md-sys-color-primary-container);
+  --color-secondary: var(--md-sys-color-surface-variant);
+  --color-surface: var(--md-sys-color-surface);
+  --color-white: var(--md-ref-palette-neutral100);
+  --color-text: var(--md-sys-color-on-surface);
+  --color-text-secondary: var(--md-sys-color-on-surface-variant);
+  --color-border: var(--md-sys-color-outline-variant);
+  --color-gray-900: var(--md-sys-color-surface);
+  --color-gray-700: var(--md-sys-color-on-surface-variant);
+  --color-gray-400: var(--md-sys-color-on-surface-variant);
+  --color-gray-300: var(--md-sys-color-on-surface-variant);
+
+  /* Feedback colors */
+  --color-success: #22c55e;
+  --color-success-rgb: 34, 197, 94;
+  --color-error: var(--md-ref-palette-error50);
+  --color-error-rgb: 222, 55, 48;
 }
 
 /* Explicit Light Theme Overrides (force light even if system prefers dark) */
