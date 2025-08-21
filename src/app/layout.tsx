@@ -66,7 +66,8 @@ export default function RootLayout({
         suppressHydrationWarning
         className={`${geistSans.variable} ${geistMono.variable} ${roboto.variable} antialiased`}
       >
-        {children}
+  <a className="skip-link" href="#main">Pomiń nawigację</a>
+  {children}
       </body>
     </html>
   );

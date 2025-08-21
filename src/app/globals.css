@@ -1,35 +1,122 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 /* Flexbox header layout: logo | menu | phone+toggle */
 .flex-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
+  /* kept for backward compatibility in markup; neutralized so it doesn't
+     interfere with the new grid-based header layout. */
+  display: contents;
 }
+
 .header__flex-left {
-  flex: 0 0 33%;
-  max-width: 33%;
+  /* Left/right use intrinsic size; prevent them from forcing fixed 33% widths. */
+  flex: 0 0 auto;
+  max-width: none;
   display: flex;
   align-items: center;
   justify-content: flex-start;
+  padding-left: var(--header-column-pad);
+  padding-right: var(--header-column-pad);
+  min-inline-size: var(--header-side-min);
 }
 .header__flex-center {
-  flex: 0 0 33%;
-  max-width: 33%;
+  /* Center grows and shrinks as needed; min-width:0 allows children to shrink.
+     The nav inside is constrained with max-width so it won't overlap side items. */
+  flex: 1 1 auto;
+  min-width: 0;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 .header__flex-right {
-  flex: 0 0 33%;
-  max-width: 33%;
+  flex: 0 0 auto;
+  max-width: none;
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 12px;
+  gap: 8px;
+  padding-left: var(--header-column-pad);
+  padding-right: var(--header-column-pad);
+  min-inline-size: var(--header-side-min);
+}
+
+/* Prevent content overlap by using box-sizing and modest horizontal padding
+   inside each header column. Center nav is constrained so left/right items
+   never overlap it on standard desktop widths. */
+.header__flex-left,
+.header__flex-center,
+.header__flex-right {
+  box-sizing: border-box;
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+
+
+/* Make each header flex column fill header height and center its inner content */
+.header__flex-left,
+.header__flex-center,
+.header__flex-right {
+  height: 100%;
+  align-items: center;
+}
+
+/* Allow nav items to shrink without forcing overflow */
+.nav__list > li {
+  min-width: 0;
+}
+
+/* Constrain center navigation so it doesn't grow beyond available space */
+.header__flex-center .nav {
+  width: 100%;
+  max-width: 720px; /* tuneable: prevents overlap on medium screens */
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+/* Logo container and link should center their content */
+.header__logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.header__logo a,
+.header__logo button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+/* Contact container (phone + toggle) center content */
+.header__contact {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 100%;
+}
+
+/* Ensure mobile menu toggle sits centered within header height */
+.mobile-menu-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 0 var(--space-4);
 }
 /* Logo color filter for dark mode */
 .header__logo-img {
-  transition: filter 0.3s;
+  transition: filter 0.3s, width 160ms var(--ease-standard), height 160ms var(--ease-standard);
+  /* Enforce square logo using header-logo-size variables */
+  width: var(--header-logo-size);
+  height: var(--header-logo-size);
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+  display: inline-block;
 }
 html.dark .header__logo-img,
 body.dark .header__logo-img,
@@ -324,6 +411,18 @@ body.dark .header__logo-img,
   --container-md: 768px;
   --container-lg: 1024px;
   --container-xl: 1280px;
+  /* Header sizing - used to reserve space for fixed header and keep consistent layout */
+  --header-height: 56px;
+  --header-height-mobile: 48px;
+  /* Header spacing variables (tweak to adjust visual spacing) */
+  --header-horizontal-pad: 24px; /* outer container padding */
+  --header-column-pad: 12px;    /* padding inside each header column */
+  --header-gap-logo-nav: 32px;  /* desired minimal gap between logo and centered nav */
+  --header-gap-nav-right: 32px; /* desired minimal gap between centered nav and right column */
+  --header-side-min: 96px;      /* minimum inline size reserved for left/right columns */
+  /* Logo sizing: keep the logo square and sized relative to header height */
+  --header-logo-size: calc(var(--header-height) - 8px);
+  --header-logo-size-mobile: 44px;
 
   /* Easing & durations (compat) */
   --duration-fast: var(--md-sys-motion-duration-short2);
@@ -437,6 +536,27 @@ html[data-theme="light"] {
   white-space: nowrap !important;
   border: 0 !important;
 }
+
+/* Skip link: visible on focus for keyboard users */
+.skip-link {
+  position: absolute;
+  left: 12px;
+  top: 8px;
+  background: var(--md-sys-color-surface);
+  color: var(--md-sys-color-on-surface);
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  transform: translateY(-100%);
+  transition: transform 160ms var(--ease-standard);
+  z-index: 2000;
+}
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+/* Focus styles for mobile nav when opened */
+.nav.nav--mobile-open { outline: none; }
+.nav.nav--mobile-open .nav__link:focus { outline: var(--focus-outline); }
 
 /* Material Design 3 State Layer Utilities */
 .md-state-layer {
@@ -752,17 +872,16 @@ pre code {
 .md-filled-button:hover {
   box-shadow: var(--md-sys-elevation-level1);
 }
-
 .md-filled-button:hover::before {
-  opacity: var(--md-sys-state-hover-state-layer-opacity);
+  opacity: 0.10; /* unified 10% overlay */
 }
 
 .md-filled-button:focus::before {
-  opacity: var(--md-sys-state-focus-state-layer-opacity);
+  opacity: 0.10;
 }
 
 .md-filled-button:active::before {
-  opacity: var(--md-sys-state-pressed-state-layer-opacity);
+  opacity: 0.10;
 }
 
 .md-filled-button:disabled {
@@ -809,15 +928,15 @@ pre code {
 }
 
 .md-outlined-button:hover::before {
-  opacity: var(--md-sys-state-hover-state-layer-opacity);
+  opacity: 0.10;
 }
 
 .md-outlined-button:focus::before {
-  opacity: var(--md-sys-state-focus-state-layer-opacity);
+  opacity: 0.10;
 }
 
 .md-outlined-button:active::before {
-  opacity: var(--md-sys-state-pressed-state-layer-opacity);
+  opacity: 0.10;
 }
 
 .md-outlined-button:disabled {
@@ -863,15 +982,15 @@ pre code {
 }
 
 .md-text-button:hover::before {
-  opacity: var(--md-sys-state-hover-state-layer-opacity);
+  opacity: 0.10;
 }
 
 .md-text-button:focus::before {
-  opacity: var(--md-sys-state-focus-state-layer-opacity);
+  opacity: 0.10;
 }
 
 .md-text-button:active::before {
-  opacity: var(--md-sys-state-pressed-state-layer-opacity);
+  opacity: 0.10;
 }
 
 .md-text-button:disabled {
@@ -983,20 +1102,85 @@ textarea.form-control {
   left: 0;
   right: 0;
   z-index: 1000;
+  /* Prefer OnePlus Sans if available, otherwise fall back to Inter (imported) */
+  font-family: 'OnePlus Sans', Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  height: var(--header-height);
   transition: all var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-standard);
   backdrop-filter: blur(8px);
   box-shadow: var(--md-sys-elevation-level2);
 }
 
 .header__content {
-  display: flex;
+  /* Grid layout: left auto, center flexible, right auto. Keeps center perfectly centered
+     regardless of left/right widths, preventing drift/overlap. */
+  display: grid;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
-  justify-content: space-between;
-  padding: 16px 0;
+  height: var(--header-height);
   max-width: 1200px;
   margin: 0 auto;
-  padding-left: 24px;
-  padding-right: 24px;
+  padding-left: var(--header-horizontal-pad);
+  padding-right: var(--header-horizontal-pad);
+  gap: 12px;
+  position: relative;
+}
+
+/* Ensure the center column content is centered in its grid cell and constrained */
+.header__flex-center {
+  justify-self: center;
+  width: 100%;
+}
+
+/* On wide screens place the nav absolutely centered in the header to guarantee
+   pixel-perfect centering irrespective of side content widths. We only apply
+   this behavior on desktop (>=992px) — on small screens the centered area is hidden
+   and mobile dropdown is used instead. */
+@media (min-width: 992px) {
+  .header__flex-center .nav {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    display: flex; /* ensure nav items inline */
+    z-index: 1100; /* above header background but below overlays */
+    width: auto;
+  /* Prevent nav from growing into side columns: leave space for both side mins + horizontal padding */
+  max-width: calc(100% - (var(--header-side-min) * 2) - (var(--header-horizontal-pad) * 2));
+    justify-content: center;
+    pointer-events: auto;
+  }
+
+  /* Ensure nav list can shrink and links truncate */
+  .header__flex-center .nav__list {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Override global rules that force .nav and list items to full header height.
+     For the absolutely centered nav we want auto height so transform centering works. */
+  .header__flex-center .nav {
+    height: auto !important;
+  }
+
+  .header__flex-center .nav__list > li {
+    height: auto !important;
+    display: inline-flex !important;
+    align-items: center !important;
+  }
+
+  /* Keep individual nav links at 40px and vertically centered */
+  .header__flex-center .nav__link {
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
+/* Reserve spacing for the fixed header so page content doesn't sit under it. */
+.has-fixed-header main {
+  padding-top: var(--header-height);
 }
 
 .header__logo h1 {
@@ -1028,6 +1212,27 @@ textarea.form-control {
   gap: 8px;
 }
 
+/* Make each list item match the nav height so child anchors with height:100%
+   actually fill the header and center vertically. Without this, anchors
+   align to text baseline and appear too-high. */
+.nav__list > li {
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+/* Ensure nav fills header height and items are vertically centered */
+.nav {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.nav__list {
+  height: 100%;
+  align-items: center;
+}
+
 .nav__link {
   color: var(--md-sys-color-on-surface);
   font-family: var(--md-sys-typescale-label-large-font);
@@ -1036,11 +1241,29 @@ textarea.form-control {
   line-height: var(--md-sys-typescale-label-large-line-height);
   letter-spacing: var(--md-sys-typescale-label-large-tracking);
   text-decoration: none;
-  padding: 12px 16px;
+  /* Match contact button size: fixed 40px height and comfortable horizontal padding. */
+  display: inline-flex;
+  align-items: center;
+  height: 40px; /* same as .md-filled-button */
+  padding: 0 24px; /* match button horizontal padding */
   border-radius: var(--md-sys-shape-corner-extra-large);
   transition: all var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard);
   position: relative;
   overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* Utility: truncate long nav labels instead of wrapping/breaking layout */
+.nav__link--truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 160px; /* tune this to fit your layout */
+  /* Keep the same inline-flex behavior as .nav__link so vertical centering
+     and height:100% continue to apply. Using inline-block moves links to the
+     text baseline which can make them appear too-high. */
+  display: inline-flex;
+  align-items: center;
 }
 
 .nav__link::before {
@@ -1055,13 +1278,19 @@ textarea.form-control {
   transition: opacity var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard);
 }
 
-.nav__link:hover::before {
-  opacity: var(--md-sys-state-hover-state-layer-opacity);
+/* Uniform overlay on hover/focus/active: 10% */
+.nav__link:hover::before,
+.nav__link:focus::before,
+.nav__link:active::before {
+  opacity: 0.10; /* 10% */
 }
 
 .nav__link--active {
   color: var(--md-sys-color-primary) !important;
   background: var(--md-sys-color-primary-container);
+  /* keep same box model as normal links to avoid shift */
+  height: 40px;
+  padding: 0 24px;
 }
 
 .nav__link--active::after {
@@ -1072,9 +1301,12 @@ textarea.form-control {
 
 /* Dark Mode Toggle Button */
 .dark-mode-toggle {
-  background: var(--md-sys-color-surface-variant);
+  /* Use the same background as the header surface so the toggle's inner
+    background visually matches the header */
+  background: var(--md-sys-color-surface);
   border: 1px solid var(--md-sys-color-outline);
-  color: var(--md-sys-color-on-surface-variant);
+  /* ensure icon/text contrast matches header surface */
+  color: var(--md-sys-color-on-surface);
   width: 40px;
   height: 40px;
   border-radius: var(--md-sys-shape-corner-full);
@@ -1113,6 +1345,11 @@ textarea.form-control {
   outline-offset: 2px;
 }
 
+.header__flex-right .header__phone:focus-visible {
+  outline: 2px solid var(--md-sys-color-primary);
+  outline-offset: 2px;
+}
+
 .dark-mode-toggle i {
   font-size: 16px;
   position: relative;
@@ -1121,7 +1358,8 @@ textarea.form-control {
 }
 
 .dark-mode-toggle:hover i {
-  transform: scale(1.1);
+  /* remove zoom/scale on hover; keep icon visually stable */
+  transform: none !important;
 }
 
 .header__contact {
@@ -1142,6 +1380,19 @@ textarea.form-control {
   color: var(--md-sys-color-on-primary);
 }
 
+/* === Local override: make only the center header (box 2) nav links rectangular ===
+   This affects the main centered menu links (Strona główna, Usługi, O nas, Kontakt)
+   and the mobile dropdown when opened. It intentionally scopes to .header__flex-center
+   so buttons in box 1 (logo) and box 3 (phone, toggle) are not touched. */
+.header__flex-center .nav__link {
+  border-radius: var(--md-sys-shape-corner-none) !important;
+}
+
+.header__flex-center .nav.nav--mobile-open .nav__link {
+  /* mobile dropdown links also become rectangular */
+  border-radius: var(--md-sys-shape-corner-none) !important;
+}
+
 .header__flex-right .header__phone:hover,
 .header__flex-right .header__phone:focus,
 .header__flex-right .header__phone:active {
@@ -1152,20 +1403,68 @@ textarea.form-control {
 .header__flex-right .header__phone {
   position: relative;
 }
-.header__flex-right .header__phone::after {
+.header__flex-right .header__phone::before {
+  /* Match .md-filled-button hover: use on-primary overlay, invisible by default */
   content: '';
   position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: rgba(0,0,0,0.05);
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--md-sys-color-on-primary);
   opacity: 0;
+  border-radius: inherit;
   pointer-events: none;
   transition: opacity 160ms var(--md-sys-motion-easing-standard);
 }
-.header__flex-right .header__phone:hover::after,
-.header__flex-right .header__phone:focus::after,
-.header__flex-right .header__phone:active::after {
-  opacity: 1;
+
+
+/* Make phone button visually match the dark-mode toggle: circular 40x40, same surface/border/colors */
+.header__flex-right .header__phone {
+  /* override md-filled-button defaults */
+  background: var(--md-sys-color-surface) !important;
+  color: var(--md-sys-color-on-surface) !important;
+  border: 1px solid var(--md-sys-color-outline) !important;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--md-sys-shape-corner-full);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 8px; /* keep small horizontal padding for hit area */
+  box-sizing: border-box;
+}
+
+.header__flex-right .header__phone i {
+  font-size: 16px;
+  color: var(--md-sys-color-on-surface);
+}
+
+/* Use a surface-based state layer like the dark-mode toggle */
+.header__flex-right .header__phone::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--md-sys-color-on-surface-variant);
+  opacity: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  transition: opacity var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard);
+}
+
+.header__flex-right .header__phone:hover::before,
+.header__flex-right .header__phone:focus::before,
+.header__flex-right .header__phone:active::before {
+  opacity: var(--md-sys-state-hover-state-layer-opacity);
+}
+
+.header__flex-right .header__phone:hover::before,
+.header__flex-right .header__phone:focus::before,
+.header__flex-right .header__phone:active::before {
+  opacity: 0.10; /* same 10% hover overlay as md-filled-button */
 }
 
 .mobile-menu-toggle {
@@ -1650,11 +1949,19 @@ textarea.form-control {
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
+@media (max-width: 992px) {
+  :root {
+    --header-height: var(--header-height-mobile);
+  }
+  /* Keep header vertical spacing controlled by --header-height only.
+     Do not add extra vertical padding which pushes menu up/down. */
   .header__content {
-    padding: var(--space-12) 0;
+    padding-top: 0;
+    padding-bottom: 0;
   }
   
+  /* On small screens hide the centered nav by default. When the mobile menu is opened
+     (nav--mobile-open), we show a full-width dropdown below the header. */
   .nav {
     display: none;
   }
@@ -1666,6 +1973,64 @@ textarea.form-control {
   .dark-mode-toggle {
     display: none;
   }
+
+  /* Make the three header flex columns adapt on small screens: allow them to size
+     based on content instead of enforcing 33% widths which cause layout issues. */
+  .header__flex-left,
+  .header__flex-right {
+    flex: 0 0 auto;
+    max-width: none;
+  }
+
+  /* Hide the centered nav area on small screens (we show mobile dropdown instead).
+     The actual dropdown is controlled by adding the .nav--mobile-open class. */
+  .header__flex-center {
+    display: none;
+  }
+
+  /* Mobile nav dropdown shown when user toggles menu */
+  .nav.nav--mobile-open {
+    display: block;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 950;
+    background: var(--md-sys-color-surface);
+    border-bottom: 1px solid var(--md-sys-color-outline-variant);
+    padding: 8px 16px 16px 16px;
+    box-shadow: var(--md-sys-elevation-level2);
+  }
+
+  .nav.nav--mobile-open .nav__list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 0;
+    padding: 8px 0;
+    align-items: stretch;
+  }
+
+  .nav.nav--mobile-open .nav__link {
+    display: block;
+    width: 100%;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+    text-align: left;
+  }
+
+  /* Slightly smaller logo on phones to free space */
+  .header__logo-img {
+    width: var(--header-logo-size-mobile) !important;
+    height: var(--header-logo-size-mobile) !important;
+  }
+
+/* Ensure logo never exceeds header height and stays vertically centered */
+.header__logo-img {
+  max-height: calc(var(--header-height) - 8px);
+  height: auto;
+  width: auto;
+}
   
   .hero__title {
     font-size: var(--font-size-3xl);

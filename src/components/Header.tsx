@@ -2,10 +2,13 @@
 
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
+import { useRef } from 'react';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const navRef = useRef<HTMLElement | null>(null);
+  const firstLinkRef = useRef<HTMLAnchorElement | null>(null);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -63,7 +66,37 @@ export default function Header() {
     const root = document.documentElement;
     const hasDark = root.classList.contains('dark') || root.getAttribute('data-theme') === 'dark';
     setIsDarkMode(hasDark);
+    // Ensure pages reserve space for the fixed header to avoid content overlap
+    try {
+      document.documentElement.classList.add('has-fixed-header');
+    } catch (err) {
+      // noop
+    }
   }, []);
+
+  // Close menu on Escape and handle outside clicks
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isMenuOpen) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    const onClickOutside = (e: MouseEvent) => {
+      if (!isMenuOpen) return;
+      const target = e.target as Node;
+      if (navRef.current && !navRef.current.contains(target)) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('keydown', onKey);
+    document.addEventListener('mousedown', onClickOutside);
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.removeEventListener('mousedown', onClickOutside);
+    };
+  }, [isMenuOpen]);
 
   // Synchronizacja trybu: system + inne karty (tylko gdy brak ręcznego wyboru)
   useEffect(() => {
@@ -126,26 +159,28 @@ export default function Header() {
         <div className="header__content flex-header">
           {/* Left: Logo */}
           <div className="header__flex-left">
-            <div className="header__logo" onClick={handleLogoClick} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
-              <Image
-                src="/assets/logo_black.png"
-                alt="Wentitech logo"
-                width={64}
-                height={64}
-                priority
-                className="header__logo-img"
-              />
+            <div className="header__logo" style={{ display: 'flex', alignItems: 'center' }}>
+              <a href="#home" aria-label="Wentitech - Strona główna" onClick={(e) => { e.preventDefault(); handleLogoClick(); }} style={{ display: 'inline-flex', alignItems: 'center', cursor: 'pointer' }}>
+                <Image
+                  src="/assets/logo_black.png"
+                  alt="Wentitech logo"
+                  width={48}
+                  height={48}
+                  priority
+                  className="header__logo-img"
+                />
+              </a>
             </div>
           </div>
 
           {/* Center: Menu */}
           <div className="header__flex-center">
-            <nav className={`nav nav--center ${isMenuOpen ? 'nav--mobile-open' : ''}`}>
+      <nav ref={navRef} id="main-navigation" role="navigation" aria-label="Główna nawigacja" className={`nav nav--center ${isMenuOpen ? 'nav--mobile-open' : ''}`}>
               <ul className="nav__list">
-                <li><a href="#home" className="nav__link" onClick={(e) => handleNavClick(e, '#home')}>Strona główna</a></li>
-                <li><a href="#services" className="nav__link" onClick={(e) => handleNavClick(e, '#services')}>Usługi</a></li>
-                <li><a href="#about" className="nav__link" onClick={(e) => handleNavClick(e, '#about')}>O nas</a></li>
-                <li><a href="#contact" className="nav__link" onClick={(e) => handleNavClick(e, '#contact')}>Kontakt</a></li>
+        <li><a ref={firstLinkRef} title="Strona główna" href="#home" className="nav__link nav__link--truncate" onClick={(e) => handleNavClick(e, '#home')}>Strona główna</a></li>
+        <li><a title="Usługi" href="#services" className="nav__link nav__link--truncate" onClick={(e) => handleNavClick(e, '#services')}>Usługi</a></li>
+        <li><a title="O nas" href="#about" className="nav__link nav__link--truncate" onClick={(e) => handleNavClick(e, '#about')}>O nas</a></li>
+        <li><a title="Kontakt" href="#contact" className="nav__link nav__link--truncate" onClick={(e) => handleNavClick(e, '#contact')}>Kontakt</a></li>
               </ul>
             </nav>
           </div>
@@ -153,9 +188,9 @@ export default function Header() {
           {/* Right: Phone and Dark Mode Toggle */}
           <div className="header__flex-right">
             <div className="header__contact">
-              <a href="tel:+48601514423" className="md-filled-button header__phone">
-                <i className="fas fa-phone"></i>
-                <span>+48 601 514 423</span>
+              <a href="tel:+48601514423" className="md-filled-button header__phone" aria-label="Zadzwoń +48 601 514 423">
+                <i className="fas fa-phone" aria-hidden="true"></i>
+                <span className="visually-hidden">+48 601 514 423</span>
               </a>
               <button 
                 className="dark-mode-toggle" 
@@ -172,6 +207,8 @@ export default function Header() {
           <button 
             className="mobile-menu-toggle" 
             aria-label="Menu"
+            aria-expanded={isMenuOpen}
+            aria-controls="main-navigation"
             onClick={toggleMenu}
           >
             <i className={`fas ${isMenuOpen ? 'fa-times' : 'fa-bars'}`}></i>
