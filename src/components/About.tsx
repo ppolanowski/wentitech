@@ -18,7 +18,6 @@ export default function About() {
           </div>
           
           <div className="about__features">
-            <h3 className="about__features-title">Dlaczego warto nas wybrać?</h3>
             <div className="features-grid">
               <div className="feature-item">
                 <i className="fas fa-award"></i>

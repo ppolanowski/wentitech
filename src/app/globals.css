@@ -383,7 +383,7 @@ body.dark .header__logo-img,
   --space-32: 64px;
 
   /* Font families and sizes */
-  --font-family-base: var(--font-roboto), 'Roboto', system-ui, -apple-system, sans-serif;
+  --font-family-base: 'OnePlus Sans', Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --font-family-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
   --font-size-sm: 14px;
   --font-size-base: 16px;
@@ -414,6 +414,8 @@ body.dark .header__logo-img,
   /* Header sizing - used to reserve space for fixed header and keep consistent layout */
   --header-height: 56px;
   --header-height-mobile: 48px;
+  /* Height of the bottom shadow band (used by .scroll-down__shadow) */
+  --scroll-shadow-height: 140px;
   /* Header spacing variables (tweak to adjust visual spacing) */
   --header-horizontal-pad: 24px; /* outer container padding */
   --header-column-pad: 12px;    /* padding inside each header column */
@@ -440,6 +442,8 @@ body.dark .header__logo-img,
   --color-primary-hover: var(--md-sys-color-primary);
   --color-primary-subtle: var(--md-sys-color-primary-container);
   --color-primary-surface: var(--md-sys-color-primary-container);
+  /* NBA-like blue highlight for registry numbers and hours */
+  --color-nba-blue: #1d3da6;
   --color-secondary: var(--md-sys-color-surface-variant);
   --color-surface: var(--md-sys-color-surface);
   --color-white: var(--md-ref-palette-neutral100);
@@ -696,7 +700,8 @@ html[data-theme="dark"] {
 
 /* Material Design 3 Base Styles */
 html {
-  font-family: var(--md-sys-typescale-body-large-font);
+  /* Use header font stack site-wide */
+  font-family: 'OnePlus Sans', Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   font-size: var(--md-sys-typescale-body-large-size);
   font-weight: var(--md-sys-typescale-body-large-weight);
   line-height: var(--md-sys-typescale-body-large-line-height);
@@ -1158,6 +1163,21 @@ textarea.form-control {
     justify-content: center;
   }
 
+  /* Make center nav items equal-width for consistent visual alignment.
+     This ensures 'Usługi' and 'Strona główna' share the same button size. */
+  .header__flex-center .nav__list > li {
+    display: inline-flex;
+  }
+
+  .header__flex-center .nav__link {
+   /* Allow nav links to shrink fluidly between a comfortable minimum and the
+     original 160px so the centered nav preserves visual scale on narrower
+     viewports without changing the design. */
+   min-width: clamp(120px, 11vw, 160px); /* fluid min width */
+    justify-content: center;
+    text-align: center;
+  }
+
   /* Override global rules that force .nav and list items to full header height.
      For the absolutely centered nav we want auto height so transform centering works. */
   .header__flex-center .nav {
@@ -1479,14 +1499,23 @@ textarea.form-control {
 
 /* Material Design 3 Hero Section */
 .hero {
+  /* Make the hero fill the viewport minus the fixed header so
+    header + hero === 100vh and the hero never pushes the page
+    beyond the visible screen. */
   background: linear-gradient(135deg, var(--md-sys-color-surface), var(--md-sys-color-primary-container));
-  padding: calc(80px + 64px) 0 64px 0;
   text-align: center;
   position: relative;
-  overflow: hidden;
-  min-height: 600px;
   display: flex;
   align-items: center;
+  justify-content: center;
+  /* Exact height calculation: viewport height minus header height variable.
+    Use both height and max-height to avoid accidental overflow. */
+  height: calc(100vh - var(--header-height));
+  max-height: calc(100vh - var(--header-height));
+  /* Allow internal scrolling if content doesn't fit into the reserved area */
+  overflow: auto;
+  /* Remove previous large vertical paddings/min-height that could cause overflow */
+  padding: 0;
 }
 
 .hero::before {
@@ -1505,7 +1534,9 @@ textarea.form-control {
 .hero__content {
   position: relative;
   z-index: 2;
-  max-width: 900px;
+  /* Keep the same maximum width but allow fluid scaling on narrower viewports
+    so typography and spacing feel preserved as the page is resized. */
+  max-width: clamp(320px, 70vw, 900px);
   margin: 0 auto;
   padding: 0 24px;
 }
@@ -1774,6 +1805,20 @@ textarea.form-control {
   background: var(--color-surface);
 }
 
+/* Ensure main page sections reserve the hero height as minimum, but allow
+   the page to grow beyond one viewport so large content can be scrolled by
+   the document (prevents internal panel scrollbars). */
+.services,
+.about,
+.contact {
+  min-height: calc(100vh - var(--header-height));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0; /* inner spacing is controlled by section-specific children */
+  overflow: visible; /* document scroll will handle overflow */
+}
+
 .contact__title {
   text-align: center;
   font-size: var(--font-size-3xl);
@@ -1793,10 +1838,12 @@ textarea.form-control {
 }
 
 .contact__grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-32);
-  align-items: start;
+  /* Use flexbox for a two-column layout: left details, right form */
+  display: flex;
+  /* Tighter gap between panels to make cards appear smaller and closer. */
+  gap: clamp(8px, 1.6vw, var(--space-8));
+  align-items: stretch; /* make children stretch to equal height */
+  justify-content: center; /* center panels and allow equal widths */
 }
 
 .contact__info h3,
@@ -1812,8 +1859,8 @@ textarea.form-control {
   display: flex;
   align-items: flex-start;
   gap: var(--space-16);
-  margin-bottom: var(--space-20);
-  padding: var(--space-20);
+  margin-bottom: var(--space-12);
+  padding: var(--space-12);
   background: var(--color-white);
   border-radius: var(--radius-md);
   border: 1px solid var(--color-border);
@@ -1825,6 +1872,7 @@ textarea.form-control {
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
   border-color: var(--color-primary-subtle);
+  cursor: pointer;
 }
 
 .contact__item i {
@@ -1853,12 +1901,205 @@ textarea.form-control {
 }
 
 /* Modern Contact Form */
-.contact__form {
+.contact__info {
+  /* Left panel: make equal width to the form on wide viewports.
+    Use a 50% centered clamp so both panels share the same available space
+    while still respecting a sensible minimum and maximum. */
+  /* Make panels significantly narrower: smaller min and max and reduced ideal percentage */
+  flex: 1 1 clamp(180px, 36%, 320px);
+  width: clamp(180px, 36%, 320px);
+  display: flex;
+  flex-direction: column;
   background: var(--color-white);
-  padding: var(--space-32);
+  padding: clamp(8px, 1.2vw, var(--space-12));
   border-radius: var(--radius-lg);
   border: 1px solid var(--color-border);
   box-shadow: var(--shadow-md);
+  height: auto;
+  overflow: visible;
+}
+
+.contact__form {
+  background: var(--color-white);
+  padding: clamp(8px, 1.2vw, var(--space-12));
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-md);
+  /* Right form: make intentionally narrower than the left panel while
+     keeping equal height via align-items: stretch on the container. */
+  /* Make form match left panel width so both columns appear equal and slightly
+    narrower on wide viewports. */
+  /* Make the form equal width to the left panel so both columns are balanced. */
+  flex: 1 1 clamp(180px, 36%, 320px);
+  width: clamp(180px, 36%, 320px);
+  min-width: 160px;
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  overflow: visible;
+}
+
+/* Make right-column contact form text use the same primary blue tone as the
+   company name above. We scope to headings, labels, links and button text so
+   form control values and placeholders remain the default readable color. */
+.contact__form h3,
+.contact__form .form-label,
+.contact__form label,
+.contact__form a,
+.contact__form .form-message,
+.contact__form .md-filled-button,
+.contact__form .md-filled-button span,
+.contact__form .md-filled-button i {
+  color: var(--md-sys-color-primary);
+}
+
+/* Keep input text and placeholder color readable (do not override .form-control) */
+.contact__form .form-control {
+  color: var(--color-text);
+}
+
+/* Remove shadow from the contact form submit button specifically so the
+   element at #contact > div > div > div.contact__form > form > button
+   appears flat. Use !important to override general button hover shadows. */
+.contact__form form > button,
+.contact__form form > .md-filled-button,
+.contact__form .contact__submit {
+  box-shadow: none !important;
+}
+
+.contact__form form > button:hover,
+.contact__form form > .md-filled-button:hover,
+.contact__form .contact__submit:hover,
+.contact__form form > button:focus,
+.contact__form form > .md-filled-button:focus,
+.contact__form .contact__submit:focus {
+  box-shadow: none !important;
+}
+
+/* Company footer formatting inside the left panel */
+.company-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 0; /* removed spacing between cards per user request */
+  color: var(--color-text);
+}
+.company-footer__name {
+  font-size: 18px;
+  font-weight: var(--font-weight-semibold);
+  color: var(--md-sys-color-primary);
+}
+.company-footer__address {
+  font-style: normal;
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+  /* match horizontal padding of the company name so address aligns */
+  padding: calc(var(--space-8) / 2) var(--space-12);
+  margin: 0; /* ensure no extra margin interferes with alignment */
+}
+.company-footer__row {
+  display: flex;
+  gap: 0; /* use label padding to control exact spacing after colon */
+  align-items: center; /* vertically center label and value */
+}
+.company-footer__label {
+  min-width: 110px;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  text-align: right; /* align label text to the right so colon sits next to value */
+  padding-right: var(--space-8); /* consistent single spacing after colon */
+}
+.company-footer a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+.company-footer a:hover { text-decoration: underline; }
+
+/* Highlight specific company values (NIP/REGON/hours) with an NBA-like blue */
+.company-footer__highlight {
+  /* use the site's primary/brand blue so highlight matches wentitech.com */
+  color: var(--color-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+/* Make each direct child inside the left contact panel appear as a separate
+  rectangular card. This keeps the existing design language but visually
+  separates company name, address and contact rows into distinct blocks. */
+.company-footer > * {
+  background: transparent; /* default transparent; subtle background appears on hover/focus */
+  border: none; /* no frame by default */
+  border-radius: var(--radius-md);
+  /* Use smaller, clamped padding so items remain compact; spacing is 0
+     between items per user request. */
+  padding: clamp(4px, 0.8vw, var(--space-6));
+  box-shadow: none; /* keep flat by default */
+  margin-bottom: 0; /* spacing handled by .company-footer gap (0) */
+  box-sizing: border-box;
+  width: 100%;
+  transition: background-color 180ms var(--md-sys-motion-easing-standard), color 120ms var(--md-sys-motion-easing-standard);
+}
+
+/* Show the rectangular frame when the user hovers or focuses the item for
+   both mouse and keyboard accessibility. */
+.company-footer > *:hover,
+.company-footer > *:focus,
+.company-footer > *:focus-within {
+  background: var(--color-secondary); /* subtle gray surface on hover/focus */
+  cursor: pointer; /* show pointer on hover/focus to indicate interactivity */
+  outline: none;
+}
+
+/* Provide a visible keyboard focus ring when element receives focus via keyboard */
+.company-footer > *:focus-visible {
+  box-shadow: 0 0 0 3px rgba(0,0,0,0.06); /* subtle focus ring */
+}
+
+/* Slightly tighten spacing for the company name block so it reads like a title */
+.company-footer__name {
+  padding: calc(var(--space-8) / 2) var(--space-12);
+  margin-bottom: 0;
+}
+
+/* Ensure address block preserves line breaks and normal font style */
+.company-footer__address {
+  margin: 0;
+  white-space: pre-line;
+}
+
+/* Align the company name and the address lines with the value column used
+   by .company-footer__row. This uses the label column width (110px) plus
+   the label right padding so text starts exactly where the values start. */
+.company-footer__name,
+.company-footer__address {
+  /* remove inconsistent per-block padding set earlier and align to values */
+  padding: 0;
+  /* move even closer to the left edge per user request */
+  padding-left: calc(20px + var(--space-8));
+  margin: 0 0 var(--space-8) 0;
+  box-sizing: border-box;
+}
+
+/* Nudge the WENTITECH title slightly lower so it aligns visually with nearby
+   content per user request. This only affects vertical position. */
+.company-footer__name {
+  /* reduce vertical gap so the title sits closer to the address */
+  margin-top: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+/* When .contact__info uses a panel background, make individual items leaner */
+.contact__info .contact__item {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  margin-bottom: var(--space-12);
+  align-items: center;
+}
+
+.contact__info .contact__item i {
+  margin-top: 0;
+  background: transparent;
+  color: var(--md-sys-color-primary);
 }
 
 /* Modern Footer */
@@ -1876,19 +2117,38 @@ textarea.form-control {
   margin-bottom: var(--space-32);
 }
 
+/* Company description styling in footer */
+.footer__company-desc {
+  font-family: var(--font-family-base);
+  color: var(--color-gray-300);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-normal);
+  font-style: normal; /* ensure not italic */
+  margin: 0;
+}
+
+/* Ensure address and contact lines are not italic */
+.footer address,
+.footer__contact address {
+  font-style: normal;
+  color: var(--color-gray-300);
+}
+
 .footer__section h4 {
   color: var(--color-white);
   font-size: var(--font-size-lg);
-  margin-bottom: var(--space-16);
+  margin-bottom: var(--space-8);
   font-weight: var(--font-weight-semibold);
-  position: relative;
+  /* Make heading shrink-wrap its content so the separator stays with the text */
+  display: inline-block;
 }
 
 .footer__section h4::after {
+  /* Place a small bar directly under the heading text so it's always
+     visually attached to the heading regardless of section alignment. */
   content: '';
-  position: absolute;
-  bottom: -6px;
-  left: 0;
+  display: block;
+  margin-top: 8px;
   width: 40px;
   height: 2px;
   background: var(--color-primary);
@@ -1922,6 +2182,38 @@ textarea.form-control {
 .footer__links a:hover {
   color: var(--color-primary);
   padding-left: var(--space-8);
+}
+
+/* Footer link visual adjustments: remove underline and use muted gray color
+   so links match the company description color ('tamten'). We scope to .footer
+   to avoid affecting links elsewhere. */
+.footer a {
+  text-decoration: none;
+  color: var(--color-gray-300);
+}
+.footer a:hover,
+.footer a:focus {
+  color: var(--color-gray-300);
+  text-decoration: none;
+}
+
+/* Ensure specific footer links list hover padding doesn't cause an unexpected
+   color change; keep padding behavior if present but keep the muted color. */
+.footer .footer__links a:hover {
+  color: var(--color-gray-300);
+}
+
+/* Footer contact should have its content left-aligned, but the section stays
+   in the right column visually via the grid; this keeps the text and separator
+   together and avoids a disconnected underline. */
+.footer__contact {
+  text-align: left;
+}
+
+@media (max-width: 768px) {
+  .footer__contact {
+    text-align: left; /* keep left alignment on small screens for readability */
+  }
 }
 
 .footer__bottom {
@@ -2019,6 +2311,22 @@ textarea.form-control {
     text-align: left;
   }
 
+  /* Stack contact columns on smaller screens */
+  .contact__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-24);
+    align-items: start;
+  }
+
+  /* On small screens allow contact panels to size naturally (no internal scroll) */
+  .contact__info,
+  .contact__form {
+    max-height: none;
+    overflow: visible;
+    width: 100%;
+  }
+
   /* Slightly smaller logo on phones to free space */
   .header__logo-img {
     width: var(--header-logo-size-mobile) !important;
@@ -2030,6 +2338,16 @@ textarea.form-control {
   max-height: calc(var(--header-height) - 8px);
   height: auto;
   width: auto;
+}
+
+/* Desktop alignment tweak: move the left contact panel up slightly so the
+   company title lines up with the first form field ('Imię'). Scoped to
+   wider viewports to avoid stacking/layout shifts on mobile. */
+@media (min-width: 768px) {
+  .contact__info {
+    /* lift by one small spacing unit; adjust if you want it higher/lower */
+    transform: translateY(calc(-1 * var(--space-4)));
+  }
 }
   
   .hero__title {
@@ -2059,7 +2377,10 @@ textarea.form-control {
   }
   
   .hero {
-    padding: calc(60px + var(--space-24)) 0 var(--space-24) 0;
+    /* Keep same behavior on small screens: hero fills viewport minus header. */
+    height: calc(100vh - var(--header-height));
+    max-height: calc(100vh - var(--header-height));
+    padding: 0;
   }
 
   .nav__link--active::after {
@@ -2089,6 +2410,96 @@ textarea.form-control {
   outline: var(--focus-outline);
   outline-offset: 2px;
 }
+
+/* Decorative bottom rectangle gradient (darkest at the very bottom, lightest at top) */
+.bottom-gradient {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--scroll-shadow-height);
+  pointer-events: none;
+  z-index: 1200;
+  /* Gradient darkest at the bottom (0%) and lightest at the top (100%) */
+  background: linear-gradient(
+    to top,
+    rgba(0,0,0,0.25) 0%,
+    rgba(0,0,0,0.20) 20%,
+    rgba(0,0,0,0.15) 40%,
+    rgba(0,0,0,0.10) 60%,
+    rgba(0,0,0,0.05) 80%,
+    rgba(0,0,0,0) 100%
+  );
+  /* lower the gradient visually by 20% of its own height */
+  transform: translateY(20%);
+  /* hint that transform may change for smoother rendering */
+  will-change: transform;
+  /* Use a very subtle noise overlay (SVG feTurbulence) layered above the gradient
+     to break up banding without heavy blurs. The overlay has very low opacity. */
+  background-image: linear-gradient(
+      to top,
+      rgba(0,0,0,0.25) 0%,
+      rgba(0,0,0,0.20) 20%,
+      rgba(0,0,0,0.15) 40%,
+      rgba(0,0,0,0.10) 60%,
+      rgba(0,0,0,0.05) 80%,
+      rgba(0,0,0,0) 100%
+    ),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100%' height='100%'><filter id='n'><feTurbulence baseFrequency='0.9' numOctaves='1' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.03' /></svg>");
+  background-repeat: no-repeat, repeat;
+  background-size: 100% 100%, 64px 64px;
+  background-position: top center, center;
+}
+
+/* Wrapper to hold gradient and the interactive button */
+.bottom-gradient-wrapper {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--scroll-shadow-height);
+  pointer-events: none;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 1300;
+}
+
+.bottom-gradient-button {
+  pointer-events: auto;
+  margin-bottom: 8px;
+  background: transparent;
+  border: none;
+  color: var(--md-sys-color-on-surface); /* white on current theme */
+  width: 40px;
+  height: 40px;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: none;
+  cursor: pointer;
+}
+
+.bottom-gradient-button i {
+  font-size: 18px;
+  color: inherit;
+  transform-origin: center;
+  /* always animate transform changes so toggling the class flips smoothly */
+  transition: transform 260ms var(--md-sys-motion-easing-standard);
+  will-change: transform;
+}
+
+.bottom-gradient-button:focus-visible {
+  outline: 2px solid var(--md-sys-color-primary);
+  outline-offset: 4px;
+}
+
+/* Flip the chevron when button is in 'up' state */
+.bottom-gradient-button--up i {
+  transform: rotate(180deg);
+}
+
 
 /* Loading state for form */
 .form--loading .btn {

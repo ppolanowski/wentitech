@@ -119,47 +119,58 @@ export default function Contact() {
   return (
     <section id="contact" className="contact">
       <div className="container">
-        <h2 className="md-headline-large contact__title">Skontaktuj się z nami</h2>
-        <p className="md-body-large contact__subtitle">Jesteśmy gotowi, aby pomóc w realizacji Twojego projektu</p>
         <div className="contact__grid">
           <div className="contact__info">
-            <h3 className="md-title-large">Dane kontaktowe</h3>
-            
-            <div className="contact__item">
-              <i className="fas fa-map-marker-alt"></i>
-              <div>
-                <strong>Adres:</strong><br />
+            <div className="company-footer">
+              <div className="company-footer__name"><strong>WENTITECH</strong></div>
+              <address className="company-footer__address">
                 ul. Antoniego Abrahama 46B/8<br />
                 81-395 Gdynia
-              </div>
-            </div>
-            
-            <div className="contact__item">
-              <i className="fas fa-phone"></i>
-              <div>
-                <strong>Telefon:</strong><br />
+              </address>
+
+              <div className="company-footer__row">
+                <span className="company-footer__label">Telefon:</span>
                 <a href="tel:+48601514423">+48 601 514 423</a>
               </div>
-            </div>
-            
-            <div className="contact__item">
-              <i className="fas fa-envelope"></i>
-              <div>
-                <strong>Email:</strong><br />
+
+              <div className="company-footer__row">
+                <span className="company-footer__label">Email:</span>
                 <a href="mailto:biuro@wentitech.com">biuro@wentitech.com</a>
               </div>
-            </div>
-            
-            <div className="contact__item">
-              <i className="fas fa-id-card"></i>
-              <div>
-                <strong>NIP:</strong> 5862400243
+
+              <div className="company-footer__row">
+                <span className="company-footer__label">Strona:</span>
+                <a href="https://wentitech.com" target="_blank" rel="noopener noreferrer">wentitech.com</a>
               </div>
+
+              <div className="company-footer__row">
+                <span className="company-footer__label">NIP:</span>
+                <span className="company-footer__value company-footer__highlight">5862400243</span>
+              </div>
+
+              <div className="company-footer__row">
+                <span className="company-footer__label">REGON:</span>
+                <span className="company-footer__value company-footer__highlight">527207919</span>
+              </div>
+
+              <div className="company-footer__row">
+                <span className="company-footer__label">KRS:</span>
+                <a href="https://ekrs.ms.gov.pl/s21/krs/" target="_blank" rel="noopener noreferrer">0001075727</a>
+              </div>
+
+              
+
+
+              <div className="company-footer__row">
+                <span className="company-footer__label">Pon-Pt:</span>
+                <span className="company-footer__value company-footer__highlight">08:00-17:00</span>
+              </div>
+              
+              
             </div>
           </div>
           
           <div className="contact__form">
-            <h3 className="md-title-large">Napisz do nas</h3>
             <form className={`form ${isLoading ? 'form--loading' : ''}`} onSubmit={handleSubmit}>
               {message && (
                 <div className={`form-message form-message--${message.type}`}>

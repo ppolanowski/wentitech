@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Roboto } from "next/font/google";
 import "./globals.css";
+import ScrollDown from '@/components/ScrollDown';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -68,6 +69,7 @@ export default function RootLayout({
       >
   <a className="skip-link" href="#main">Pomiń nawigację</a>
   {children}
+      <ScrollDown />
       </body>
     </html>
   );

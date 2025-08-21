@@ -44,8 +44,8 @@ export default function Header() {
     if (element) {
       const header = document.querySelector('.header');
       const headerHeight = header ? header.getBoundingClientRect().height : 80;
-      const targetPosition = element.getBoundingClientRect().top + window.scrollY - headerHeight - 20;
-      
+      const targetPosition = window.scrollY + element.getBoundingClientRect().top - headerHeight;
+
       window.scrollTo({
         top: Math.max(0, targetPosition),
         behavior: 'smooth'
