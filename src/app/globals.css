@@ -1,3 +1,41 @@
+/* Flexbox header layout: logo | menu | phone+toggle */
+.flex-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+.header__flex-left {
+  flex: 0 0 33%;
+  max-width: 33%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+.header__flex-center {
+  flex: 0 0 33%;
+  max-width: 33%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.header__flex-right {
+  flex: 0 0 33%;
+  max-width: 33%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+/* Logo color filter for dark mode */
+.header__logo-img {
+  transition: filter 0.3s;
+}
+html.dark .header__logo-img,
+body.dark .header__logo-img,
+[data-theme="dark"] .header__logo-img {
+  filter: brightness(0) invert(1);
+}
 :root {
   /* Material Design 3 Color System - Wentitech Brand */
   
@@ -431,9 +469,9 @@ html[data-theme="light"] {
   opacity: var(--md-sys-state-pressed-state-layer-opacity);
 }
 
-/* Material Design 3 Dark Theme */
+/* Material Design 3 Dark Theme (applies only when no explicit theme is set) */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme]):not(.light):not(.dark) {
     /* Material Design 3 Semantic Color Tokens - Dark Theme */
     --md-sys-color-primary: var(--md-ref-palette-primary80);
     --md-sys-color-on-primary: var(--md-ref-palette-primary20);
@@ -638,15 +676,16 @@ p {
   margin: 0 0 16px 0;
 }
 
-a {
-  color: var(--md-sys-color-primary);
+
+.nav__link {
+  color: var(--md-sys-color-on-surface);
   text-decoration: none;
-  transition: color var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
+  transition: none;
 }
 
-a:hover {
-  color: var(--md-sys-color-primary);
-  text-decoration: underline;
+.nav__link:hover {
+  color: var(--md-sys-color-on-surface);
+  text-decoration: none;
 }
 
 code,
@@ -883,6 +922,10 @@ pre code {
 textarea.form-control {
   font-family: var(--font-family-base);
   font-size: var(--font-size-base);
+  /* Allow only vertical resize; width stays responsive like other inputs */
+  resize: vertical;
+  overflow: auto;
+  min-height: 120px;
 }
 
 .form-control:focus {
@@ -1088,7 +1131,41 @@ textarea.form-control {
 
 .header__phone:hover {
   background: var(--color-primary);
-  color: var(--color-btn-primary-text);
+  /* keep the text color unchanged on hover to avoid visual shift */
+  color: inherit;
+}
+
+/* Ensure contact button text and icon never change color on hover/focus/active */
+.header__flex-right .header__phone,
+.header__flex-right .header__phone span,
+.header__flex-right .header__phone i {
+  color: var(--md-sys-color-on-primary);
+}
+
+.header__flex-right .header__phone:hover,
+.header__flex-right .header__phone:focus,
+.header__flex-right .header__phone:active {
+  color: var(--md-sys-color-on-primary);
+}
+
+/* Darken button by overlaying semi-transparent black on hover (approx. 33%) */
+.header__flex-right .header__phone {
+  position: relative;
+}
+.header__flex-right .header__phone::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: rgba(0,0,0,0.05);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 160ms var(--md-sys-motion-easing-standard);
+}
+.header__flex-right .header__phone:hover::after,
+.header__flex-right .header__phone:focus::after,
+.header__flex-right .header__phone:active::after {
+  opacity: 1;
 }
 
 .mobile-menu-toggle {
@@ -1154,7 +1231,14 @@ textarea.form-control {
 
 .hero__cta {
   margin: 16px;
-  padding: 12px 32px;
+  /* match header contact button height and alignment */
+  height: 40px;
+  padding: 10px 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-sizing: border-box;
   font-size: 16px;
 }
 
@@ -1181,9 +1265,13 @@ textarea.form-control {
 
 .services__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  /* On wide screens, always three columns in a single row */
+  grid-template-columns: repeat(3, 1fr);
+  /* Make each grid cell share equal height within the row */
+  grid-auto-rows: 1fr;
   gap: 24px;
   margin-top: 48px;
+  align-items: stretch; /* ensure grid items stretch to same height */
 }
 
 /* Material Design 3 Service Cards */
@@ -1197,6 +1285,40 @@ textarea.form-control {
   position: relative;
   overflow: hidden;
   border: 1px solid var(--md-sys-color-outline-variant);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  height: 100%; /* fill the grid cell so all cards match height */
+}
+
+/* Make inner parts layout consistently so all cards match height */
+.service-card__icon,
+.service-card__title {
+  flex: 0 0 auto;
+}
+
+/* Normalize spacing inside cards for consistent height calculation */
+.service-card__title {
+  margin: 0 0 16px;
+}
+
+.service-card__description {
+  flex: 1 1 auto;
+  margin: 0 0 16px;
+  /* ensure long text wraps and pushes CTA down */
+}
+
+/* Ensure paragraphs inside cards don't add unexpected margins */
+.service-card p {
+  margin: 0 0 16px;
+}
+
+/* If buttons are present in the card, push them to the bottom for alignment */
+.service-card .md-filled-button,
+.service-card .md-outlined-button,
+.service-card .service-card__cta {
+  margin-top: auto;
+  align-self: center; /* keep centered by default */
 }
 
 .service-card::before {
@@ -1560,7 +1682,7 @@ textarea.form-control {
   }
   
   .services__grid {
-    grid-template-columns: 1fr;
+  grid-template-columns: 1fr;
   }
   
   .features-grid {
