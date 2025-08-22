@@ -7,8 +7,9 @@ export default function Hero() {
     if (contactSection) {
       const header = document.querySelector('.header');
       const headerHeight = header ? header.getBoundingClientRect().height : 80;
-      const targetPosition = contactSection.getBoundingClientRect().top + window.scrollY - headerHeight - 20;
-      
+      // Use same calculation as header navigation so both links land at the same spot
+      const targetPosition = window.scrollY + contactSection.getBoundingClientRect().top - headerHeight;
+
       window.scrollTo({
         top: Math.max(0, targetPosition),
         behavior: 'smooth'

@@ -192,7 +192,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             if (hasErrors) {
-                showFormMessage('Proszę poprawić błędy w formularzu.', 'error');
+                showFormMessage('Sprawdź proszę dane w formularzu<br>oraz spróbuj ponownie.', 'error');
                 return;
             }
             

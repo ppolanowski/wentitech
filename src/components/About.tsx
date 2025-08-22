@@ -43,13 +43,7 @@ export default function About() {
                 </div>
               </div>
               
-              <div className="feature-item">
-                <i className="fas fa-map-marker-alt"></i>
-                <div>
-                  <h4>Lokalnie w Trójmieście</h4>
-                  <p>Szybka obsługa na terenie Gdyni i okolic</p>
-                </div>
-              </div>
+              {/* fourth feature removed per request */}
             </div>
           </div>
         </div>

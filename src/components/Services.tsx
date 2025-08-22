@@ -11,8 +11,7 @@ export default function Services() {
             </div>
             <h3 className="md-title-large service-card__title">Instalacje wentylacyjne</h3>
             <p className="md-body-medium service-card__description">
-              Projektowanie i montaż systemów wentylacji przemysłowej, mechanicznej i rekuperacji. 
-              Zapewniamy odpowiednie rozprowadzenie powietrza w budynkach mieszkalnych, biurowych i przemysłowych.
+              Projektowanie i montaż systemów wentylacji przemysłowej, mechanicznej i rekuperacji.
             </p>
           </div>
           
@@ -22,8 +21,7 @@ export default function Services() {
             </div>
             <h3 className="md-title-large service-card__title">Systemy przeciwpożarowe</h3>
             <p className="md-body-medium service-card__description">
-              Kompleksowe instalacje przeciwpożarowe - hydrantowe, tryskaczowe, pianowe oraz systemy mgły wodnej. 
-              Zapewniamy bezpieczeństwo obiektów zgodnie z obowiązującymi normami.
+              Kompleksowe instalacje przeciwpożarowe - hydrantowe, tryskaczowe, pianowe oraz systemy mgły wodnej.
             </p>
           </div>
           
