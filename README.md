@@ -34,3 +34,23 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## GitHub Pages
+
+This repo is configured to deploy a static export to GitHub Pages at:
+
+- https://ppolanowski.github.io/wentitech/
+
+How it works:
+
+- `next.config.ts` sets `output: 'export'`, `basePath` and `assetPrefix` to `/wentitech`, `trailingSlash: true`, and `images.unoptimized: true`.
+- `npm run build:pages` builds and exports to `out/`.
+- `.github/workflows/gh-pages.yml` uploads `out/` and deploys to Pages on pushes to `main`.
+
+To test locally:
+
+```bash
+npm ci
+npm run build:pages
+npx serve out
+```
