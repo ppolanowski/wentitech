@@ -7,7 +7,9 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "export": "next export",
-    "build:pages": "npm run build && npm run export",
+  "build:ci": "next build",
+  "build:pages": "npm run build && npm run export",
+  "build:pages:ci": "npm run build:ci && npm run export",
     "start": "next start",
     "lint": "eslint"
   },
