@@ -1,5 +1,19 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
+/* Remove the old pseudo 'kopiuj' hint to avoid overlapping the real copy button
+  and causing inconsistent click targets. The real copy button is positioned
+  absolutely inside the value column (see .company-footer__copy below). */
+
+#contact > div > div > div.contact__info .company-footer > *::after {
+  /* remove legacy visual hint inserted via a pseudo-element */
+  content: none !important;
+  display: none !important;
+}
+.company-footer__name:focus-visible {
+  box-shadow: inset 0 0 0 2px #22B6BF !important;
+  border-radius: 0 !important;
+}
+
 /* Flexbox header layout: logo | menu | phone+toggle */
 .flex-header {
   /* kept for backward compatibility in markup; neutralized so it doesn't
@@ -67,6 +81,11 @@
   color: var(--company-label-color-light, var(--md-sys-color-on-surface));
   font-size: var(--font-size-base);
   line-height: 1.2;
+}
+
+/* Ensure contact face children are clipped to the parent's rounded corners */
+.contact__info__face {
+  overflow: hidden;
 }
 
 /* Allow nav items to shrink without forcing overflow */
@@ -749,6 +768,21 @@ body {
   color: var(--md-sys-color-on-background);
   transition: color var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-standard),
               background-color var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-standard);
+}
+
+/* Global link reset: remove browser/UA black underlines and show underline only on hover/focus
+   using the theme primary color. This keeps links visually clean by default. */
+a {
+  text-decoration: none;
+  text-decoration-color: inherit;
+}
+
+a:hover,
+a:focus {
+  text-decoration: underline;
+  text-decoration-color: var(--md-sys-color-primary);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
 }
 
 /* Material Design 3 Typography */
@@ -1599,6 +1633,18 @@ textarea.form-control {
   font-size: 16px;
 }
 
+/* Ensure hero CTA text has no underline on any state */
+.hero__cta,
+.hero__cta span,
+.hero__cta i,
+.hero__cta:link,
+.hero__cta:visited,
+.hero__cta:hover,
+.hero__cta:active,
+.hero__cta:focus {
+  text-decoration: none !important;
+}
+
 /* Material Design 3 Services Section */
 .services {
   padding: var(--section-vertical-pad) 0;
@@ -1949,7 +1995,7 @@ textarea.form-control {
   display: flex;
   flex-direction: column;
   background: var(--color-white);
-  padding: clamp(8px, 1.2vw, var(--space-12));
+  padding: 0; /* remove inner padding from the flipping card */
   border-radius: var(--radius-lg);
   border: 1px solid var(--color-border);
   box-shadow: var(--shadow-md);
@@ -1994,6 +2040,8 @@ textarea.form-control {
   justify-content: flex-start;
   padding: inherit; /* inherit padding from parent so faces align */
   background: transparent;
+  overflow: hidden;
+  border-radius: var(--radius-lg); /* ensure face clips children to panel radius */
 }
 
 .contact__info__face--front {
@@ -2008,7 +2056,7 @@ textarea.form-control {
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: var(--space-12);
+  padding: 0; /* remove inner padding on the back face as well */
 }
 
 /* Back face visual tweaks */
@@ -2020,8 +2068,6 @@ textarea.form-control {
   padding: var(--space-12);
 }
 
-/* Make back-face error paragraph use the same color as the company label
-   (e.g. 'Strona:') so error messages visually match label emphasis. */
 .company-footer--back p {
   color: var(--company-label-color-light);
 }
@@ -2031,22 +2077,23 @@ textarea.form-control {
   color: var(--company-label-color-light);
 }
 
-.contact__back-gif {
-  display: block;
-  margin: 0 auto 12px auto;
-  /* base small size fallback */
-  max-width: 120px;
-  width: 100%;
-  height: auto;
-  border-radius: 8px;
+/* Company footer link defaults: remove browser/UA underlines (including black UA colors)
+   and show underline only on hover/focus in the company blue. */
+.company-footer a {
+  color: var(--company-value-color-light);
+  text-decoration: none !important;
+  -webkit-text-decoration-color: var(--company-value-color-light);
+  text-decoration-color: var(--company-value-color-light);
 }
 
-.contact__back-gif--large {
-  /* reduced by 1/3 from 360px -> 240px; clamp to 90% of container to avoid overflow */
-  max-width: min(240px, 90%);
-  width: auto;
-  display: block;
-  margin: 12px auto 0 auto;
+.company-footer a:hover,
+.company-footer__button:hover a,
+.company-footer a:focus {
+  text-decoration: underline;
+  -webkit-text-decoration-color: var(--company-value-color-light);
+  text-decoration-color: var(--company-value-color-light);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
 }
 
 .contact__form {
@@ -2170,9 +2217,6 @@ textarea.form-control {
   background-color: var(--md-ref-palette-primary60) !important;
   color: #ffffff !important;
   border-color: transparent !important;
-  position: relative; /* allow ::before overlay to work */
-  box-shadow: var(--md-sys-elevation-level1) !important;
-  transition: background-color var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard) !important;
 }
 
 /* Hover state: match the contact submit hover background */
@@ -2187,11 +2231,10 @@ textarea.form-control {
   content: '';
   position: absolute;
   inset: 0;
-  background: var(--md-sys-color-on-primary); /* same as md-filled-button */
+  background: var(--md-ref-palette-primary100);
   opacity: 0 !important;
   pointer-events: none;
   border-radius: inherit;
-  transition: opacity var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard) !important;
 }
 
 #home > div > div > a:hover::before,
@@ -2360,11 +2403,87 @@ body.light #contact > div > div > div.contact__form > form > .md-filled-button,
 /* Company footer formatting inside the left panel */
 .company-footer {
   display: flex;
-  flex-direction: column;
-  gap: 0; /* removed spacing between cards per user request */
-  color: var(--color-text);
+  flex-direction: column; /* default: stacked vertically */
+  width: 100%;
+  height: 100%; /* take full height of the face/container */
+  min-height: 0; /* allow flex children to shrink correctly */
 }
-.company-footer__name {
+
+/* Prevent children from protruding outside parent's rounded corners */
+.company-footer {
+  overflow: hidden;
+  border-radius: var(--radius-lg); /* explicit match to face radius to avoid inheritance issues */
+}
+
+/* Keep responsive fallback: still full-width on small screens */
+@media (max-width: 992px) {
+  .company-footer {
+    flex-direction: column;
+  }
+  .company-footer__button {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+.company-footer__button {
+  flex: 1 1 0; /* share available height equally */
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; /* left-align inner row so label/value columns line up */
+  height: auto; /* let flex sizing control height */
+  background: transparent; /* transparent by user request */
+  color: #191C1D; /* explicit font color */
+  border: none;
+  border-radius: 0;
+  margin: 0;
+  /* add a bit more space on the left so labels/values don't touch the panel edge */
+  padding-inline-start: calc(var(--space-16));
+  padding-inline-end: var(--space-12);
+  padding-block: calc(var(--space-6) * 0.5);
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+/* Ensure the first and last buttons inherit the parent's rounded corners */
+.company-footer__button:first-child {
+  border-top-left-radius: inherit !important;
+  border-top-right-radius: inherit !important;
+  overflow: hidden; /* clip any inner content */
+}
+.company-footer__button:last-child {
+  border-bottom-left-radius: inherit !important;
+  border-bottom-right-radius: inherit !important;
+  overflow: hidden; /* clip any inner content */
+}
+/* Use natural DOM order for .company-footer children so adding/removing items
+  doesn't require updating CSS. Avoid fixed order properties which can
+  move items with default order (0) above explicitly-ordered items. */
+.company-footer__button:hover,
+.company-footer__button:focus {
+  /* change the whole button background to white darkened by 8% */
+  background: #ebebeb; /* white darkened by ~8% */
+  color: inherit; /* preserve text color */
+}
+
+/* Keep focus ring inset for buttons so it doesn't escape parent radius */
+.company-footer__button:focus-visible {
+  /* On keyboard focus, show the same hover shade and a clear outline for accessibility */
+  background: #ebebeb; /* white darkened by ~8% */
+  outline: 2px solid var(--md-sys-color-primary);
+  outline-offset: 2px;
+}
+.company-footer > .company-footer__name:first-child {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+  border-top-left-radius: 0 !important;
+  border-top-right-radius: 0 !important;
   font-size: var(--font-size-base);
   font-weight: var(--font-weight-semibold);
   color: var(--company-name-color-light);
@@ -2378,22 +2497,139 @@ body.light #contact > div > div > div.contact__form > form > .md-filled-button,
   margin: 0; /* ensure no extra margin interferes with alignment */
 }
 .company-footer__row {
-  display: flex;
-  gap: 0; /* use label padding to control exact spacing after colon */
+  /* use CSS Grid for pixel-perfect column alignment: fixed label column + flexible value column */
+  display: grid;
+  grid-template-columns: 180px 1fr; /* label column, then value column */
+  column-gap: var(--space-8);
   align-items: center; /* vertically center label and value */
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  position: relative; /* create stacking context so anchors can sit above overlays */
+  z-index: 40;
 }
+
+@media (max-width: 480px) {
+  .company-footer__row {
+    grid-template-columns: 1fr; /* stack on very narrow screens */
+    row-gap: calc(var(--space-4));
+  }
+  .company-footer__label { text-align: left; }
+}
+
+
 .company-footer__label {
-  min-width: 110px;
+  /* fixed column for labels so colons line up vertically */
+  width: 180px;
+  min-width: 160px;
+  box-sizing: border-box;
   font-weight: var(--font-weight-medium);
   color: var(--company-label-color-light);
   text-align: right; /* align label text to the right so colon sits next to value */
-  padding-right: var(--space-8); /* consistent single spacing after colon */
+  padding-right: var(--space-8); /* consistent spacing after colon */
+}
+.company-footer__value {
+  flex: 1 1 auto;
+  text-align: left;
+  color: var(--company-value-color-light);
 }
 .company-footer a {
   color: var(--company-value-color-light);
-  text-decoration: none;
+  /* remove any browser/UA underline and prevent black decoration color */
+  text-decoration: none !important;
+  -webkit-text-decoration-color: var(--company-value-color-light);
+  text-decoration-color: var(--company-value-color-light);
 }
-.company-footer a:hover { text-decoration: underline; }
+
+.company-footer a:hover,
+.company-footer__button:hover a,
+.company-footer a:focus {
+  /* show underline only on hover/focus and use the same blue color */
+  text-decoration: underline;
+  -webkit-text-decoration-color: var(--company-value-color-light);
+  text-decoration-color: var(--company-value-color-light);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+/* Ensure labels never receive an underline even if inside a link */
+.company-footer__label { text-decoration: none; }
+
+/* Values underline only on hover and use the same blue color as the text */
+.company-footer__value {
+  text-decoration: none;
+  text-decoration-color: var(--company-value-color-light);
+  position: relative; /* allow absolute positioning of copy button */
+  padding-right: 84px; /* reserve space on the right for the copy button */
+}
+
+/* Ensure the link itself doesn't expand into the reserved copy area */
+.company-footer__link {
+  display: inline;
+  max-width: none;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal; /* allow wrapping so long values are fully visible */
+  word-break: break-word;
+  position: relative;
+  z-index: 50; /* ensure link is above the big-copy button */
+}
+
+/* Copy button positioning; show only on row hover or value focus-within */
+.company-footer__copy {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: none;
+  background: transparent;
+  border: none;
+  color: var(--company-value-color-light);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  padding: 6px 8px;
+}
+
+.company-footer__row:hover .company-footer__copy,
+.company-footer__value:focus-within .company-footer__copy {
+  display: inline-block;
+}
+
+/* Big invisible copy button that sits in the company-footer__button as a sibling
+   of the row. It covers the left portion of the row but leaves the link area
+   free so anchors remain native and clickable. */
+.company-footer__big-copy {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  right: 120px; /* leave more space on the right for the link/copy area */
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  color: inherit;
+  z-index: 10; /* capture clicks across the row */
+  /* Capture clicks across the left portion of the row while leaving the
+    right area (link) free for native anchor clicks. */
+  pointer-events: auto;
+}
+.company-footer__button { position: relative; overflow: visible; }
+
+/* Ensure the visible link sits above the big-copy button so clicks on the
+   link are handled by the anchor and not intercepted by the button. */
+.company-footer__link {
+  position: relative;
+  z-index: 9999; /* ensure anchors are always on top of overlays */
+  pointer-events: auto;
+}
+
+.company-footer a:focus .company-footer__value {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
 
 /* Highlight specific company values (NIP/REGON/hours) with an NBA-like blue */
 .company-footer__highlight {
@@ -2547,13 +2783,10 @@ body.light #contact > div > div > div.contact__form > form > .md-filled-button,
   color: var(--company-name-color-light);
 }
 
-/* Make each direct child inside the left contact panel appear as a separate
-  rectangular card. This keeps the existing design language but visually
-  separates company name, address and contact rows into distinct blocks. */
-.company-footer > * {
+.company-footer > *:not(.company-footer__button) {
   background: transparent; /* default transparent; subtle background appears on hover/focus */
   border: none; /* no frame by default */
-  border-radius: var(--radius-md);
+  border-radius: 0 !important;
   /* Use smaller, clamped padding so items remain compact; spacing is 0
      between items per user request. */
   padding: clamp(4px, 0.8vw, var(--space-6));
@@ -2566,22 +2799,22 @@ body.light #contact > div > div > div.contact__form > form > .md-filled-button,
 
 /* Show the rectangular frame when the user hovers or focuses the item for
    both mouse and keyboard accessibility. */
-.company-footer > *:hover,
-.company-footer > *:focus,
-.company-footer > *:focus-within {
-  background: var(--color-secondary); /* subtle gray surface on hover/focus */
-  cursor: pointer; /* show pointer on hover/focus to indicate interactivity */
-  outline: none;
+.company-footer a:hover,
+.company-footer__button:hover a,
+.company-footer a:focus {
+  /* show underline only on hover/focus and use the same blue color */
+  text-decoration: underline;
+  -webkit-text-decoration-color: var(--company-value-color-light);
+  text-decoration-color: var(--company-value-color-light);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
 }
-
-/* Override for items inside the left contact panel: show a 1px framed outline
-   on hover/focus using an inset box-shadow so the visual frame doesn't cause
-   layout shift. This targets the explicit DOM structure the user referenced. */
 #contact > div > div > div.contact__info .company-footer > *:hover,
 #contact > div > div > div.contact__info .company-footer > *:focus,
 #contact > div > div > div.contact__info .company-footer > *:focus-within {
-  background: transparent !important;
-  box-shadow: inset 0 0 0 1px #D3D7D8 !important;
+  /* Use a full background hover instead of an inset outline */
+  background: #ebebeb !important; /* white darkened by ~8% */
+  box-shadow: none !important;
   cursor: pointer;
 }
 
@@ -2603,6 +2836,7 @@ body.light #contact > div > div > div.contact__form > form > .md-filled-button,
   transition: opacity 160ms var(--md-sys-motion-easing-standard);
   pointer-events: none; /* don't intercept clicks */
   white-space: nowrap;
+  z-index: 0;
 }
 
 #contact > div > div > div.contact__info .company-footer > *:hover::after,
@@ -2613,7 +2847,10 @@ body.light #contact > div > div > div.contact__form > form > .md-filled-button,
 
 /* Provide a visible keyboard focus ring when element receives focus via keyboard */
 .company-footer > *:focus-visible {
-  box-shadow: 0 0 0 3px rgba(0,0,0,0.06); /* subtle focus ring */
+  /* Make keyboard focus visibly change background and add an outline */
+  background: #ebebeb;
+  outline: 2px solid var(--md-sys-color-primary);
+  outline-offset: 2px;
 }
 
 /* Slightly tighten spacing for the company name block so it reads like a title */
@@ -3122,23 +3359,86 @@ body.light #contact > div > div > div.contact__form > form > .md-filled-button,
 
 /* Popup shown near the cursor when a value is copied */
 .copy-popup {
-  position: absolute;
-  z-index: 800;
-  background: rgba(0,0,0,0.85);
+  position: fixed; /* left/top set by JS via ref */
+  z-index: 1200;
+  background: rgba(0,0,0,0.9);
   color: #fff;
-  padding: 6px 10px;
-  border-radius: 6px;
+  padding: 8px 12px;
+  border-radius: 8px;
   font-size: 0.875rem;
   pointer-events: none;
-  transform: translate(0, 0);
   white-space: nowrap;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.28);
   opacity: 1;
-  transition: opacity 1s linear;
+  transform: translate(-50%, -120%) scale(1);
+  transition: opacity 220ms ease, transform 220ms cubic-bezier(0.2, 0.9, 0.2, 1);
+  will-change: transform, opacity;
 }
 
 .copy-popup--fade {
   opacity: 0;
+  transform: translate(-50%, -140%) scale(0.98);
+}
+
+/* Helper for form field error state previously set inline */
+.has-error {
+  border-color: var(--color-error) !important;
+}
+
+/* Full-width center utility for submit button */
+.full-width-center {
+  width: 100%;
+  justify-content: center;
+}
+
+/* Visually hidden already exists above as .visually-hidden; keep for ARIA live region */
+
+/* Contact panel back-face error text spacing */
+.contact__error-text { margin-top: 12px; }
+
+/* Override: ensure no pseudo or hint element sitting in the right/top of
+   company-footer items can intercept clicks. This rule is intentionally
+   specific and placed late in the file so it wins over earlier declarations. */
+#contact > div > div > div.contact__info .company-footer > *::after {
+  content: none !important;
+  display: none !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
+}
+
+/* Ensure the small inline copy button/hint doesn't intercept clicks */
+.company-footer__copy {
+  pointer-events: none !important;
+  z-index: 0 !important;
+}
+
+/* Keep big-copy button handling clicks; anchors stay clickable above it */
+.company-footer__big-copy {
+  pointer-events: auto;
+}
+
+/* Make the main contact info panel transparent as requested. This selector
+   targets the exact DOM path you provided and uses !important to override
+   earlier background settings. */
+#contact > div > div > div.contact__info {
+  background: transparent !important;
+}
+
+/* Make company-footer buttons white by default while preserving hover/focus
+   background changes defined elsewhere. Using the same path selector to
+   ensure this rule takes precedence in the contact panel. */
+#contact > div > div > div.contact__info .company-footer__button {
+  background: var(--color-white) !important;
+  color: inherit;
+}
+
+/* Ensure copy-popup uses CSS for positioning; portal renders near body top-left so we pin it via transform instead of inline left/top */
+.copy-popup {
+  /* when JS cannot set coords, fall back to small offset from top-left */
+  position: fixed;
+  left: 12px;
+  top: 12px;
+  transform: translate(0, 0);
 }
 
 /* Success/Error states */
@@ -3160,4 +3460,14 @@ body.light #contact > div > div > div.contact__form > form > .md-filled-button,
   background: rgba(var(--color-error-rgb), 0.1);
   color: var(--color-error);
   border: 1px solid rgba(var(--color-error-rgb), 0.2);
+}
+
+/* Remove underline from the header phone icon link on hover/focus */
+body > header > div > div > div.header__flex-right > div > a:hover,
+body > header > div > div > div.header__flex-right > div > a:focus {
+  text-decoration: none !important;
+}
+body > header > div > div > div.header__flex-right > div > a:hover *,
+body > header > div > div > div.header__flex-right > div > a:focus * {
+  text-decoration: none !important;
 }
