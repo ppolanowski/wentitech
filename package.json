@@ -2,14 +2,9 @@
   "name": "wentitech",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://ppolanowski.github.io/wentitech/",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
-    "export": "next export",
-  "build:ci": "next build",
-  "build:pages": "npm run build && npm run export",
-  "build:pages:ci": "npm run build:ci && npm run export",
     "start": "next start",
     "lint": "eslint"
   },
